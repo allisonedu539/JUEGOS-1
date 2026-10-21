@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fff8ec">
+  <title>La aventura de los animalitos</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif;
+      color: #43504c;
+      background: #fff8ec;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-weight: 600;
+      --ink: #43504c;
+      --muted: #84918a;
+      --coral: #f08c78;
+      --green: #72a995;
+      --yellow: #f5c969;
+      --pink: #ffe8e3;
+      --mint: #e5f2e9;
+      --blue: #e6eff9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 10% 80%, #e8f2e6 0 9%, transparent 9.2%),
+        radial-gradient(ellipse at 96% 20%, #fce8dc 0 10%, transparent 10.2%),
+        #fff8ec;
+    }
+
+    button { font: inherit; }
+
+    .page {
+      min-height: 100vh;
+      padding: 22px 30px 32px;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .page::before,
+    .page::after {
+      position: fixed;
+      z-index: -1;
+      pointer-events: none;
+      font-size: 34px;
+      opacity: .5;
+      content: "✿";
+    }
+
+    .page::before { left: 5.2%; top: 34%; color: #f0b8a7; transform: rotate(-18deg); }
+    .page::after { right: 6%; bottom: 15%; color: #e9bd60; transform: rotate(20deg); }
+
+    .topbar {
+      width: min(1070px, 100%);
+      margin: 0 auto 23px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -.25px;
+    }
+
+    .brand-icon {
+      display: grid;
+      width: 43px;
+      height: 43px;
+      place-items: center;
+      border-radius: 15px;
+      background: #fff;
+      box-shadow: 0 4px 14px #66543c12;
+      font-size: 25px;
+    }
+
+    .sound-button {
+      display: flex;
+      min-height: 45px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 15px;
+      border: 2px solid #eee8dc;
+      border-radius: 15px;
+      background: #fffdf8;
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform .18s, background .18s;
+    }
+
+    .sound-button:hover { transform: translateY(-2px); background: #fff; }
+    button:focus-visible { outline: 3px solid #8cbca9; outline-offset: 4px; }
+    .sound-icon { font-size: 20px; }
+    .sound-label { font-size: 13px; font-weight: 800; }
+
+    .game-shell {
+      width: min(1010px, 100%);
+      min-height: 635px;
+      margin: 0 auto;
+      padding: 35px 48px 37px;
+      border: 2px solid #ffffffd9;
+      border-radius: 35px;
+      background: #ffffffd9;
+      box-shadow: 0 18px 65px #71624c12, 0 3px 10px #71624c08;
+      text-align: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 9px;
+      color: #91a39a;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(30px, 4.5vw, 43px);
+      font-weight: 900;
+      letter-spacing: -1.7px;
+      line-height: 1.13;
+    }
+
+    .subtitle {
+      margin: 10px 0 25px;
+      color: #8c9690;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .game-meta {
+      display: flex;
+      width: min(590px, 100%);
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin: 0 auto 24px;
+    }
+
+    .round-counter {
+      flex: 0 0 auto;
+      color: #89968f;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .progress-track {
+      width: min(220px, 42vw);
+      height: 10px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #f1eee7;
+    }
+
+    .progress-fill {
+      width: 12.5%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #93c8ae, #f4cf79);
+      transition: width .35s ease;
+    }
+
+    .star-count {
+      display: flex;
+      min-width: 68px;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 11px;
+      border-radius: 14px;
+      background: #fff5d9;
+      color: #a27727;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .star-count span:first-child { font-size: 19px; }
+
+    .question {
+      display: inline-block;
+      margin: 0 0 24px;
+      padding: 13px 25px;
+      border-radius: 19px;
+      background: #f8eee3;
+      color: #525c56;
+      font-size: clamp(21px, 3vw, 27px);
+      font-weight: 900;
+      letter-spacing: -.5px;
+    }
+
+    .choices {
+      display: grid;
+      width: min(670px, 100%);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 17px;
+      margin: 0 auto;
+    }
+
+    .animal-card {
+      display: flex;
+      min-width: 0;
+      min-height: 198px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px 10px 13px;
+      border: 3px solid transparent;
+      border-radius: 25px;
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+
+    .animal-card:nth-child(1) { background: #e9f3eb; }
+    .animal-card:nth-child(2) { background: #fcebe5; }
+    .animal-card:nth-child(3) { background: #edf0fa; }
+
+    .animal-card:hover:not(:disabled) {
+      transform: translateY(-6px) rotate(-1deg);
+      box-shadow: 0 12px 20px #637e6d18;
+    }
+
+    .animal-card:disabled { cursor: default; }
+
+    .animal-card.correct {
+      border-color: #82bd9b;
+      background: #e9f6ea;
+      animation: pop .42s ease;
+    }
+
+    .animal-card.incorrect {
+      border-color: #efad99;
+      animation: wobble .35s ease;
+    }
+
+    .animal-illustration {
+      display: grid;
+      width: 115px;
+      height: 111px;
+      place-items: center;
+      border-radius: 50%;
+      background: #ffffffa6;
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+      font-size: 76px;
+      line-height: 1;
+      filter: drop-shadow(0 4px 2px #53463312);
+    }
+
+    .animal-name { font-size: 15px; font-weight: 900; }
+
+    .feedback {
+      min-height: 33px;
+      margin: 18px 0 0;
+      color: #71a389;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .feedback.try-again { color: #da927e; }
+
+    .next-button,
+    .restart-button {
+      min-height: 50px;
+      padding: 0 26px;
+      border: 0;
+      border-radius: 17px;
+      background: #79ad96;
+      box-shadow: 0 5px 0 #63967f;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 900;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .next-button { margin-top: 4px; }
+    .restart-button { margin-top: 25px; }
+    .next-button:hover, .restart-button:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #63967f; }
+    .next-button:active, .restart-button:active { transform: translateY(3px); box-shadow: 0 2px 0 #63967f; }
+    [hidden] { display: none !important; }
+
+    .finish {
+      padding: 50px 12px 37px;
+    }
+
+    .finish-animals {
+      margin: 4px 0 14px;
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+      font-size: clamp(45px, 9vw, 75px);
+      letter-spacing: 8px;
+    }
+
+    .finish h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .finish p {
+      margin: 11px 0 0;
+      color: #84918a;
+      font-size: 17px;
+    }
+
+    .footer-note {
+      margin: 19px 0 0;
+      color: #a2a59c;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sparkle { display: inline-block; animation: twinkle 1.7s ease-in-out infinite; }
+    .sparkle:nth-child(2) { animation-delay: .45s; }
+
+    @keyframes pop {
+      50% { transform: scale(1.06); }
+    }
+    @keyframes wobble {
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    @keyframes twinkle {
+      50% { transform: scale(1.22) rotate(12deg); }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 16px 14px 24px; }
+      .topbar { margin-bottom: 15px; }
+      .brand { gap: 8px; font-size: 13px; }
+      .brand-icon { width: 38px; height: 38px; border-radius: 13px; font-size: 22px; }
+      .sound-button { min-height: 41px; padding: 0 11px; }
+      .sound-label { font-size: 12px; }
+      .game-shell { min-height: 0; padding: 28px 15px 26px; border-radius: 27px; }
+      .subtitle { margin: 9px 0 21px; font-size: 14px; }
+      .game-meta { margin-bottom: 20px; }
+      .question { margin-bottom: 19px; padding: 12px 17px; }
+      .choices { gap: 9px; }
+      .animal-card { min-height: 153px; gap: 7px; padding: 11px 5px; border-radius: 19px; }
+      .animal-illustration { width: clamp(69px, 22vw, 95px); height: clamp(69px, 22vw, 95px); font-size: clamp(47px, 15vw, 65px); }
+      .animal-name { font-size: 12px; }
+      .feedback { margin-top: 14px; font-size: 15px; }
+      .footer-note { font-size: 11px; }
+    }
+
+    @media (max-width: 360px) {
+      .animal-card { min-height: 137px; }
+      .animal-name { font-size: 11px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">🐾</span>
+        <span>APRENDO JUGANDO</span>
+      </div>
+      <button class="sound-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Desactivar sonido">
+        <span class="sound-icon" id="sound-icon" aria-hidden="true">🔊</span>
+        <span class="sound-label" id="sound-label">Sonido</span>
+      </button>
+    </header>
+
+    <section class="game-shell" aria-labelledby="game-title">
+      <div id="game-content">
+        <p class="eyebrow"><span class="sparkle" aria-hidden="true">✦</span> ¡Un mundo por descubrir! <span class="sparkle" aria-hidden="true">✦</span></p>
+        <h1 id="game-title">La aventura de los animalitos</h1>
+        <p class="subtitle">Mira con atención y encuentra al animalito</p>
+
+        <div class="game-meta" aria-label="Progreso del juego">
+          <span class="round-counter" id="round-counter">Pregunta 1 de 8</span>
+          <div class="progress-track" role="progressbar" id="progress" aria-label="Progreso" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="star-count" aria-label="Estrellas ganadas">
+            <span aria-hidden="true">⭐</span><span id="star-count">0</span>
+          </div>
+        </div>
+
+        <h2 class="question" id="question" aria-live="polite">¿Dónde está el perro?</h2>
+        <div class="choices" id="choices" aria-label="Elige el animal correcto"></div>
+        <p class="feedback" id="feedback" aria-live="polite">Toca la imagen correcta</p>
+        <button class="next-button" id="next-button" type="button" hidden>Siguiente aventura →</button>
+        <p class="footer-note">Cada respuesta correcta te regala una estrella <span aria-hidden="true">🌟</span></p>
+      </div>
+
+      <div class="finish" id="finish" role="status" hidden>
+        <div class="finish-animals" aria-hidden="true">🐶 🐱 🦁 🐰</div>
+        <h2>¡Eres una estrella!</h2>
+        <p id="finish-message">¡Encontraste a todos los animalitos!</p>
+        <button class="restart-button" id="restart-button" type="button">Jugar otra vez ↻</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const animals = [
+        { name: "perro", image: "🐶" },
+        { name: "gato", image: "🐱" },
+        { name: "león", image: "🦁" },
+        { name: "conejo", image: "🐰" }
+      ];
+      const totalRounds = 8;
+      const gameContent = document.querySelector("#game-content");
+      const finishScreen = document.querySelector("#finish");
+      const choicesContainer = document.querySelector("#choices");
+      const question = document.querySelector("#question");
+      const feedback = document.querySelector("#feedback");
+      const nextButton = document.querySelector("#next-button");
+      const counter = document.querySelector("#round-counter");
+      const progress = document.querySelector("#progress");
+      const progressFill = document.querySelector("#progress-fill");
+      const starCount = document.querySelector("#star-count");
+      const soundToggle = document.querySelector("#sound-toggle");
+      const soundIcon = document.querySelector("#sound-icon");
+      const soundLabel = document.querySelector("#sound-label");
+      let round = 0;
+      let stars = 0;
+      let target;
+      let soundEnabled = true;
+      let audioContext;
+
+      function shuffle(items) {
+        const result = [...items];
+        for (let index = result.length - 1; index > 0; index--) {
+          const otherIndex = Math.floor(Math.random() * (index + 1));
+          [result[index], result[otherIndex]] = [result[otherIndex], result[index]];
+        }
+        return result;
+      }
+
+      function playSound(isCorrect) {
+        if (!soundEnabled) return;
+        const AudioContextType = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextType) return;
+
+        audioContext ??= new AudioContextType();
+        if (audioContext.state === "suspended") audioContext.resume();
+
+        const notes = isCorrect ? [523.25, 659.25, 783.99] : [330, 261.63];
+        notes.forEach((frequency, index) => {
+          const oscillator = audioContext.createOscillator();
+          const volume = audioContext.createGain();
+          const start = audioContext.currentTime + index * (isCorrect ? 0.12 : 0.14);
+          oscillator.type = "sine";
+          oscillator.frequency.value = frequency;
+          volume.gain.setValueAtTime(0.0001, start);
+          volume.gain.exponentialRampToValueAtTime(0.12, start + 0.025);
+          volume.gain.exponentialRampToValueAtTime(0.0001, start + 0.2);
+          oscillator.connect(volume);
+          volume.connect(audioContext.destination);
+          oscillator.start(start);
+          oscillator.stop(start + 0.21);
+        });
+      }
+
+      function showQuestion() {
+        target = animals[round % animals.length];
+        const choices = shuffle([target, ...shuffle(animals.filter((animal) => animal !== target)).slice(0, 2)]);
+        question.textContent = `¿Dónde está el ${target.name}?`;
+        counter.textContent = `Pregunta ${round + 1} de ${totalRounds}`;
+        progress.setAttribute("aria-valuenow", String(round));
+        progressFill.style.width = `${(round / totalRounds) * 100}%`;
+        feedback.textContent = "Toca la imagen correcta";
+        feedback.classList.remove("try-again");
+        nextButton.hidden = true;
+        choicesContainer.replaceChildren(...choices.map(createChoice));
+      }
+
+      function createChoice(animal) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "animal-card";
+        button.setAttribute("aria-label", `Elegir ${animal.name}`);
+        button.dataset.name = animal.name;
+
+        const illustration = document.createElement("span");
+        illustration.className = "animal-illustration";
+        illustration.setAttribute("aria-hidden", "true");
+        illustration.textContent = animal.image;
+        const label = document.createElement("span");
+        label.className = "animal-name";
+        label.textContent = animal.name[0].toUpperCase() + animal.name.slice(1);
+        button.append(illustration, label);
+        button.addEventListener("click", () => checkAnswer(button, animal));
+        return button;
+      }
+
+      function checkAnswer(button, animal) {
+        if (nextButton.hidden === false) return;
+        if (animal === target) {
+          stars += 1;
+          starCount.textContent = String(stars);
+          button.classList.add("correct");
+          choicesContainer.querySelectorAll("button").forEach((choice) => { choice.disabled = true; });
+          feedback.textContent = ["¡Muy bien! 🌟", "¡Lo encontraste! ⭐", "¡Excelente, campeona/campeón! ✨"][Math.floor(Math.random() * 3)];
+          feedback.classList.remove("try-again");
+          playSound(true);
+          nextButton.hidden = false;
+          nextButton.focus();
+        } else {
+          button.classList.add("incorrect");
+          feedback.textContent = "¡Casi! Prueba con otro animalito 💛";
+          feedback.classList.add("try-again");
+          playSound(false);
+          window.setTimeout(() => button.classList.remove("incorrect"), 400);
+        }
+      }
+
+      function finishGame() {
+        gameContent.hidden = true;
+        finishScreen.hidden = false;
+        document.querySelector("#finish-message").textContent =
+          `¡Encontraste a todos los animalitos y ganaste ${stars} de ${totalRounds} estrellas!`;
+        playSound(true);
+        document.querySelector("#restart-button").focus();
+      }
+
+      nextButton.addEventListener("click", () => {
+        round += 1;
+        if (round >= totalRounds) finishGame();
+        else showQuestion();
+      });
+
+      document.querySelector("#restart-button").addEventListener("click", () => {
+        round = 0;
+        stars = 0;
+        starCount.textContent = "0";
+        finishScreen.hidden = true;
+        gameContent.hidden = false;
+        showQuestion();
+        choicesContainer.querySelector("button")?.focus();
+      });
+
+      soundToggle.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        soundToggle.setAttribute("aria-pressed", String(soundEnabled));
+        soundToggle.setAttribute("aria-label", soundEnabled ? "Desactivar sonido" : "Activar sonido");
+        soundIcon.textContent = soundEnabled ? "🔊" : "🔇";
+        soundLabel.textContent = soundEnabled ? "Sonido" : "Sin sonido";
+        if (soundEnabled) playSound(true);
+      });
+
+      showQuestion();
+    })();
+  </script>
+</body>
+</html>
